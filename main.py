@@ -66,10 +66,10 @@ class Login:
         loginbtn=Button(frame,text="Login",font=("Arial", 15, "bold"),bd=3,relief=RIDGE,fg="#EEE8AA",bg="#FF6347",command=self.login)
         loginbtn.place(x=110,y=330,width=120,height=35)
 
-        registerbtn = Button(frame, text="Create New Account", font=("Arial", 10, "bold"), borderwidth=0, fg="#EEE8AA",bg="black",command=self.register_window)
+        registerbtn = Button(frame, text="Create New Account",command=self.register_window, font=("Arial", 10, "bold"), borderwidth=0, fg="#EEE8AA",bg="black")
         registerbtn.place(x=20, y=375, width=160)
 
-        forgetbtn = Button(frame, text="Forget Password ?", font=("Arial", 10, "bold"), borderwidth=0, fg="#EEE8AA",bg="black")
+        forgetbtn = Button(frame, text="Forget Password ?",command=self.forgot_pass, font=("Arial", 10, "bold"), borderwidth=0, fg="#EEE8AA",bg="black")
         forgetbtn.place(x=15, y=405, width=160)
 
     def register_window(self):
@@ -81,7 +81,7 @@ class Login:
         if self.txtuser.get()=="" or self.txtpass.get()=="":
             messagebox.showerror("Error","Username or Password cannot be empty.")
         elif self.txtuser.get()=="Kanha" and self.txtpass.get()=="Nachi":
-            messagebox.showinfo("Success","Login Sucessful.")
+            messagebox.showinfo("Success","Login Successful.")
         else:
             conn = mysql.connector.connect(host="localhost", user="root", password="Testkanha123",database="archsafedb")
             my_cursor = conn.cursor()
@@ -105,6 +105,76 @@ class Login:
             conn.close()
 
 
+
+
+
+
+#Forgot Password
+    def forgot_pass(self):
+        if self.txtuser.get()=="":
+            messagebox.showerror("Error","Please enter the email")
+        else:
+            conn = mysql.connector.connect(host="localhost", user="root", password="Testkanha123",
+                                           database="archsafedb")
+            my_cursor = conn.cursor()
+            query=("select * from regtable where Email=%s")
+            value=(self.txtuser.get(),)
+            my_cursor.execute(query,value)
+            row=my_cursor.fetchone()
+            # print(row)
+
+            if row==None:
+                messagebox.showerror("Error","Please Enter the valid Username")
+            else:
+                conn.close()
+                self.root2=Toplevel()
+                self.root2.title("Forgot Password")
+                self.root2.geometry("340x450+610+170")
+
+                l=Label(self.root2,text="Forgot Password",font=("Arial", 20, "bold"),fg="red",bg="white")
+                l.place(x=0,y=10,relwidth=1)
+
+                new_mob=Label(self.root2,text="Enter Mobile Number",font=("Arial", 16, "bold"),fg="black")
+                new_mob.place(x=50,y=90)
+
+                self.new_mob_entry = ttk.Entry(self.root2, font=("Arial", 15))
+                self.new_mob_entry.place(x=50, y=130, width=250)
+
+                new_pass = Label(self.root2, text="Enter New Password", font=("Arial", 16, "bold"), fg="black")
+                new_pass.place(x=50, y=170)
+
+                self.new_pass_entry = ttk.Entry(self.root2, font=("Arial", 15))
+                self.new_pass_entry.place(x=50, y=210, width=250)
+
+
+                forgotbtn = Button(self.root2, text="Reset Password", font=("Arial", 9, "bold"), bd=3, relief=RIDGE, fg="white",
+                                bg="#FF6347",command=self.reset_pass)
+                forgotbtn.place(x=110, y=280, width=120)
+
+    def reset_pass(self):
+        if self.new_mob_entry.get()=="":
+            messagebox.showerror("Error","Enter Registered Mobile Number")
+        elif self.new_pass_entry.get()=="":
+            messagebox.showerror("Error", "Enter New Password")
+
+        else:
+            conn = mysql.connector.connect(host="localhost", user="root", password="Testkanha123",
+                                           database="archsafedb")
+            my_cursor = conn.cursor()
+            query=("select * from regtable where Email=%s and Password=%s")
+            value=(self.txtuser.get(),self.txtpass.get())
+            my_cursor.execute(query,value)
+            row=my_cursor.fetchone()
+            if row!=None:
+                messagebox.showerror("Error","Enter valid Information")
+            else:
+                query=("update regtable set Password=%s where Email=%s ")
+                value=(self.new_pass_entry.get(),self.txtuser.get())
+                my_cursor.execute(query,value)
+
+                conn.commit()
+                conn.close()
+                messagebox.showinfo("Info","Your Password has been Reset,Please Login new Password")
 
 
 class Register:
